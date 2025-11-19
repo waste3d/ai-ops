@@ -3,6 +3,8 @@ syntax = "proto3";
 package ticket;
 option go_package = "github.com/waste3d/ai-ops/gen/go/ticket;ticket";
 
+import "google/protobuf/timestamp.proto";
+
 message TicketCreatedEvent {
     string id = 1;
     string source = 2; // tg, slack, email, etc
