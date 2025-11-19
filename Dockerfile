@@ -1,0 +1,1 @@
+FROM go:25.1-alpine
