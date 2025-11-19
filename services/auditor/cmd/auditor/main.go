@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/waste3d/ai-ops/services/auditor/internal/application"
@@ -35,7 +35,13 @@ func main() {
 	ticketUseCase := application.NewTicketUseCase(ticketRepo)
 	kafkaConsumer := kafka.NewConsumer(ticketUseCase, []string{kafkaBroker})
 
-	go kafkaConsumer.Start(ctx)
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		kafkaConsumer.Start(ctx)
+	}()
 
 	// graceful shutdown
 	sigChan := make(chan os.Signal, 1)
@@ -45,12 +51,7 @@ func main() {
 	log.Println("Shutdown signal received, shutting down gracefully...")
 	cancel()
 
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer shutdownCancel()
-
-	if err := kafkaConsumer.Close(shutdownCtx); err != nil {
-		log.Printf("Failed to close Kafka consumers: %v", err)
-	}
+	wg.Wait()
 
 	dbpool.Close()
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 	ticket "github.com/waste3d/ai-ops/gen/go"
@@ -13,11 +14,8 @@ import (
 )
 
 type Consumer struct {
-	useCase               *application.TicketUseCase
-	brokers               []string
-	newTicketsReader      *kafka.Reader
-	analyzedTicketsReader *kafka.Reader
-	wg                    sync.WaitGroup
+	useCase *application.TicketUseCase
+	brokers []string
 }
 
 func NewConsumer(useCase *application.TicketUseCase, brokers []string) *Consumer {
@@ -26,38 +24,46 @@ func NewConsumer(useCase *application.TicketUseCase, brokers []string) *Consumer
 
 func (c *Consumer) Start(ctx context.Context) {
 	log.Println("Starting Kafka consumers...")
-	c.newTicketsReader = kafka.NewReader(kafka.ReaderConfig{
-		Brokers: c.brokers,
-		GroupID: "auditor-new-tickets-group-v2",
-		Topic:   "tickets.new",
+	var wg sync.WaitGroup
+
+	NewTicketReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:          c.brokers,
+		GroupID:          "auditor-new-tickets-group-v2",
+		Topic:            "tickets.new",
+		MaxWait:          500 * time.Millisecond,
+		CommitInterval:   time.Second,
+		SessionTimeout:   10 * time.Second,
+		RebalanceTimeout: 5 * time.Second,
+		JoinGroupBackoff: 250 * time.Millisecond,
 	})
-	c.analyzedTicketsReader = kafka.NewReader(kafka.ReaderConfig{
-		Brokers: c.brokers,
-		GroupID: "auditor-analyzed-tickets-group-v2",
-		Topic:   "tickets.analyzed",
+	AnalyzedTicketReader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:          c.brokers,
+		GroupID:          "auditor-analyzed-tickets-group-v2",
+		Topic:            "tickets.analyzed",
+		MaxWait:          500 * time.Millisecond,
+		CommitInterval:   time.Second,
+		SessionTimeout:   10 * time.Second,
+		RebalanceTimeout: 5 * time.Second,
+		JoinGroupBackoff: 250 * time.Millisecond,
 	})
 
-	c.wg.Add(2)
+	wg.Add(2)
 
-	go c.consume(ctx, c.newTicketsReader, c.handleNewTicketMessage)
-	go c.consume(ctx, c.analyzedTicketsReader, c.handleAnalyzedTicketMessage)
-	c.wg.Wait()
+	go c.consume(ctx, &wg, NewTicketReader, c.handleNewTicketMessage)
+	go c.consume(ctx, &wg, AnalyzedTicketReader, c.handleAnalyzedTicketMessage)
+
+	<-ctx.Done()
+	log.Println("Shutdown signal received by consumer, closing readers...")
+
+	NewTicketReader.Close()
+	AnalyzedTicketReader.Close()
+
+	wg.Wait()
+	log.Println("All consumers have stopped gracefully.")
 }
 
-func (c *Consumer) Close(ctx context.Context) error {
-	log.Println("Closing Kafka consumers...")
-	if c.newTicketsReader != nil {
-		c.newTicketsReader.Close()
-	}
-	if c.analyzedTicketsReader != nil {
-		c.analyzedTicketsReader.Close()
-	}
-	log.Println("Kafka consumers closed")
-	return nil
-}
-
-func (c *Consumer) consume(ctx context.Context, reader *kafka.Reader, handler func(context.Context, kafka.Message)) {
-	defer c.wg.Done()
+func (c *Consumer) consume(ctx context.Context, wg *sync.WaitGroup, reader *kafka.Reader, handler func(context.Context, kafka.Message)) {
+	defer wg.Done()
 	for {
 		msg, err := reader.FetchMessage(ctx)
 		if err != nil {
