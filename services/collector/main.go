@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	kafkaBroker = "kafka:9092"
+	kafkaBroker = "localhost:9092"
 	topic       = "tickets.new"
 )
 
