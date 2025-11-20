@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/waste3d/ai-ops/services/ai_responser/internal/application"
-	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/config"
+	"github.com/waste3d/ai-ops/services/ai_responser/internal/config"
 	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/kafka"
 	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/llm"
 )

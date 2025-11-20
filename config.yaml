@@ -1,0 +1,13 @@
+# config.yaml
+
+kafka:
+  brokers: ["localhost:9092"]
+  topics:
+    input: "tickets.new"
+    output: "tickets.analyzed"
+  group_id: "ai-reasoner-group-v1"
+
+llm:
+  provider: "googleai" # Можете поменять на "openai", если нужно
+  # API ключ будем передавать через переменную окружения AI_OPS_LLM_API_KEY
+  api_key: "AIzaSyDNLzt6U3Id5aH7Bn1oKD_UWs2GjTdQ5JQ"
