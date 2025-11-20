@@ -8,7 +8,10 @@ import (
 )
 
 type Handler struct {
-	useCase *application.TicketUseCase
+	useCase    *application.TicketUseCase
+	jwtService *application.JWTService
+	userClient *grpc_client.UserClient
+	userReader application.UserReader
 }
 
 func NewHandler(useCase *application.TicketUseCase) *Handler {

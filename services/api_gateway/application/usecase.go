@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	authpb "github.com/waste3d/ai-ops/gen/go/auth"
 	"github.com/waste3d/ai-ops/services/api_gateway/domain"
 )
 
@@ -13,6 +14,14 @@ type AuditorReader interface {
 
 type TicketUseCase struct {
 	auditor AuditorReader
+}
+
+type UserCreator interface {
+	Register(ctx context.Context, username, passwordHash string) (*authpb.User, error)
+}
+
+type UserReader interface {
+	GetUserByUsername(ctx context.Context, username string) (*authpb.GetUserByUsernameResponse, error)
 }
 
 func NewTicketUseCase(auditor AuditorReader) *TicketUseCase {
