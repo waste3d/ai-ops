@@ -4,6 +4,9 @@ package ticket;
 option go_package = "github.com/waste3d/ai-ops/gen/go/ticket;ticket";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+
 
 message TicketCreatedEvent {
     string id = 1;
@@ -17,3 +20,30 @@ message AnalysisCompletedEvent {
       string result = 2; // problem with DataBase, how to fix it, etc
       google.protobuf.Timestamp analyzed_at = 3;
 }
+
+
+// auditor (api)
+
+message Ticket {
+  string id = 1;
+  string source = 2;
+  string payload = 3;
+  string status = 4;
+  string analysis_result = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message GetAllTicketsResponse {
+  repeated Ticket tickets = 1;
+}
+
+message GetTicketByIDRequest {
+  string id = 1;
+}
+
+service AuditService {
+  rpc GetAllTickets(google.protobuf.Empty) returns (GetAllTicketsResponse);
+  rpc GetTicketByID(GetTicketByIDRequest) returns (Ticket);
+}
+
+  

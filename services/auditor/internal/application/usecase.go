@@ -23,3 +23,11 @@ func (uc *TicketUseCase) UpdateTicket(ctx context.Context, ticketID string, stat
 	// дальше - валидация, логиривация, нотификация
 	return uc.repo.Update(ctx, ticketID, status, result)
 }
+
+func (uc *TicketUseCase) GetAllTickets(ctx context.Context) ([]*domain.Ticket, error) {
+	return uc.repo.GetAll(ctx)
+}
+
+func (uc *TicketUseCase) GetTicketByID(ctx context.Context, id string) (*domain.Ticket, error) {
+	return uc.repo.GetByID(ctx, id)
+}
