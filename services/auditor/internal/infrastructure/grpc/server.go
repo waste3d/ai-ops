@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	ticketpb "github.com/waste3d/ai-ops/gen/go"
+	ticketpb "github.com/waste3d/ai-ops/gen/go/ticket"
 	"github.com/waste3d/ai-ops/services/auditor/internal/application"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

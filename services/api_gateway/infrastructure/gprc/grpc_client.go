@@ -3,7 +3,7 @@ package grpc_client
 import (
 	"context"
 
-	ticketpb "github.com/waste3d/ai-ops/gen/go"
+	ticketpb "github.com/waste3d/ai-ops/gen/go/ticket"
 	"github.com/waste3d/ai-ops/services/api_gateway/domain"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

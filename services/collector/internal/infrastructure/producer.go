@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/segmentio/kafka-go"
-	ticketpb "github.com/waste3d/ai-ops/gen/go"
+	ticketpb "github.com/waste3d/ai-ops/gen/go/ticket"
 	"github.com/waste3d/ai-ops/services/collector/internal/application"
 	"github.com/waste3d/ai-ops/services/collector/internal/domain"
 	"google.golang.org/protobuf/proto"

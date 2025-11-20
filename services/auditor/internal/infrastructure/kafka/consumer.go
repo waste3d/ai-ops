@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/segmentio/kafka-go"
-	ticket "github.com/waste3d/ai-ops/gen/go"
+	ticket "github.com/waste3d/ai-ops/gen/go/ticket"
 	"github.com/waste3d/ai-ops/services/auditor/internal/application"
 	"github.com/waste3d/ai-ops/services/auditor/internal/domain"
 	"google.golang.org/protobuf/proto"

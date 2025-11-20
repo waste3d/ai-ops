@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/waste3d/ai-ops/gen/go/auth;auth";
+
+import "google/protobuf/timestamp.proto";
+
+message RegisterRequest {
+  string username = 1;
+  string password_hash = 2;
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message GetUserByUsernameRequest {
+  string username = 1;
+}
+
+message GetUserByUsernameResponse {
+  string id = 1;
+  string username = 2;
+  string password_hash = 3;
+}
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (User);
+  rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+}

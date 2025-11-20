@@ -9,7 +9,7 @@ import (
 	"sync"
 	"syscall"
 
-	ticketpb "github.com/waste3d/ai-ops/gen/go"
+	ticketpb "github.com/waste3d/ai-ops/gen/go/ticket"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
