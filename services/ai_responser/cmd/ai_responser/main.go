@@ -26,7 +26,24 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	llmClient := llm.NewSimulatedClient()
+	var llmClient application.Analyzer
+
+	switch cfg.LLM.Provider {
+	case "googleai":
+		if cfg.LLM.APIKey == "" {
+			log.Fatalf("LLM provider is googleai, but API key is not set.")
+		}
+		log.Println("Using Google AI (Gemini) client for analysis.")
+
+		client, err := llm.NewGoogleAIClient(cfg.LLM.APIKey)
+		if err != nil {
+			log.Fatalf("Failed to create Google AI client: %v", err)
+		}
+		llmClient = client
+	default:
+		log.Fatalf("Unsupported LLM provider: %s", cfg.LLM.Provider)
+	}
+
 	kafkaProducer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topics.Output)
 	analysisUseCase := application.NewAnalysisUseCase(llmClient, kafkaProducer)
 	kafkaConsumer := kafka.NewConsumer(analysisUseCase, cfg.Kafka.Brokers, cfg.Kafka.Topics.Input, cfg.Kafka.GroupID)
