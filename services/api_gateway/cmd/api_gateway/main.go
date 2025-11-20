@@ -16,8 +16,10 @@ import (
 )
 
 const (
-	auditorServiceAddr = "localhost:50051"
+	auditorServiceAddr = ":50051"
 	httpAddr           = ":8000"
+	userServiceAddr    = ":50052"
+	jwtSecret          = "secret-ai-ops"
 )
 
 func main() {
@@ -27,8 +29,16 @@ func main() {
 	}
 	defer auditorClient.Close()
 
+	userClient, err := grpc_client.NewUserClient(context.Background(), userServiceAddr)
+	if err != nil {
+		log.Fatalf("Failed to connect to user service: %v", err)
+	}
+	defer userClient.Close()
+
+	jwtService := application.NewJWTService(jwtSecret, "ai-ops-copilot", 24*7)
+
 	ticketUseCase := application.NewTicketUseCase(auditorClient)
-	httpHandler := http_handler.NewHandler(ticketUseCase)
+	httpHandler := http_handler.NewHandler(ticketUseCase, jwtService, userClient, userClient)
 
 	router := gin.Default()
 	httpHandler.RegisterRoutes(router)

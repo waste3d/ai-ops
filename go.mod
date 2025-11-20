@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/spf13/viper v1.21.0
+	golang.org/x/crypto v0.45.0
 	google.golang.org/api v0.186.0
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
@@ -74,7 +75,6 @@ require (
 	go.uber.org/mock v0.5.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.20.0 // indirect
-	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.32.0 // indirect
