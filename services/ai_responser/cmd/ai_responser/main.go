@@ -9,27 +9,27 @@ import (
 	"syscall"
 
 	"github.com/waste3d/ai-ops/services/ai_responser/internal/application"
-	llm "github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure"
+	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/config"
 	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/kafka"
-)
-
-const (
-	kafkaBroker     = "localhost:9092"
-	inputTopic      = "tickets.new"
-	outputTopic     = "tickets.analyzed"
-	consumerGroupID = "ai-reasoner-group-v1"
+	"github.com/waste3d/ai-ops/services/ai_responser/internal/infrastructure/llm"
 )
 
 func main() {
+
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	var wg sync.WaitGroup
 
 	llmClient := llm.NewSimulatedClient()
-	kafkaProducer := kafka.NewProducer([]string{kafkaBroker}, outputTopic)
+	kafkaProducer := kafka.NewProducer(cfg.Kafka.Brokers, cfg.Kafka.Topics.Output)
 	analysisUseCase := application.NewAnalysisUseCase(llmClient, kafkaProducer)
-	kafkaConsumer := kafka.NewConsumer(analysisUseCase, []string{kafkaBroker}, inputTopic, consumerGroupID)
+	kafkaConsumer := kafka.NewConsumer(analysisUseCase, cfg.Kafka.Brokers, cfg.Kafka.Topics.Input, cfg.Kafka.GroupID)
 
 	wg.Add(1)
 	go kafkaConsumer.Start(ctx, &wg)
@@ -47,5 +47,5 @@ func main() {
 		log.Printf("Failed to close Kafka producer: %v", err)
 	}
 
-	log.Println("AI Reasoner service stopped.")
+	log.Println("AI Responser service stopped.")
 }
